@@ -39,7 +39,7 @@ namespace SecureHostBuilderHelper
         private static IApplicationSecrets _secrets { get; set; }
         private static IServiceProvider _serviceProvider { get; set; }
 
-        ///// <summary>
+        /// <summary>
         /// This method will create an initialize a generic Host Builder 
         /// </summary>
         /// <typeparam name="TApp">Main application type. Used to access user secrets</typeparam>
@@ -64,6 +64,8 @@ namespace SecureHostBuilderHelper
 
                     if (!string.IsNullOrEmpty(_appSetupConfig.KeyVaultName) && !string.IsNullOrEmpty(_appSetupConfig.KeyVaultKey))
                     {
+                        // Use the environment variable "InitialConfiguration:RTE" instead of the value in the configuration file
+                        // if the environment value is available.
                         // Substitute the runtime environment name in the keyvault properties
                         _appSetupConfig.KeyVaultName = _appSetupConfig.KeyVaultName.Replace("{RTE}", _appSetupConfig.RTE);
                         _appSetupConfig.KeyVaultKey = _appSetupConfig.KeyVaultKey.Replace("{RTE}", _appSetupConfig.RTE);
