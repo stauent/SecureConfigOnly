@@ -70,6 +70,11 @@ namespace SecureConfiguration
         /// debug output window. "File" logs to a file. 
         /// </summary>
         List<string> EnabledLoggers { get; set; }
+
+        /// <summary>
+        /// Specifies the runtime environment name
+        /// </summary>
+        string RTE { get; set; }
     }
 
     public class InitialConfiguration : IApplicationSetupConfiguration
@@ -146,8 +151,23 @@ namespace SecureConfiguration
         /// debug output window. "File" logs to a file. 
         /// </summary>
         public List<string> EnabledLoggers { get; set; }
+
+        protected string _RTE { get; set; }
+
+        /// <summary>
+        /// Specifies the runtime environment name
+        /// </summary>
+        public string RTE
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_RTE))
+                {
+                    _RTE = "DEFAULT";
+                }
+                return (_RTE);
+            }
+            set { _RTE = value; }
+        }
     }
-
-
-
 }

@@ -17,7 +17,7 @@ namespace SecureConfiguration
         private static ILogger _logger = null;
         private static IHostEnvironment _hostingEnvironment = null;
         private static string _applicationName = "";
-        private static string _environmentName = "";
+        public static string _environmentName = "";
 
         public static ILogger _Logger
         {

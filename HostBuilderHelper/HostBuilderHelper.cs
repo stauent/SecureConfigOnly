@@ -62,8 +62,12 @@ namespace SecureHostBuilderHelper
                     _appSetupConfig = new InitialConfiguration();
                     myInitialConfig.Bind(_appSetupConfig);
 
-                    if (!string.IsNullOrEmpty(_appSetupConfig.KeyVaultName))
+                    if (!string.IsNullOrEmpty(_appSetupConfig.KeyVaultName) && !string.IsNullOrEmpty(_appSetupConfig.KeyVaultKey))
                     {
+                        // Substitute the runtime environment name in the keyvault properties
+                        _appSetupConfig.KeyVaultName = _appSetupConfig.KeyVaultName.Replace("{RTE}", _appSetupConfig.RTE);
+                        _appSetupConfig.KeyVaultKey = _appSetupConfig.KeyVaultKey.Replace("{RTE}", _appSetupConfig.RTE);
+
                         builder.AddAzureKeyVaultClient(_appSetupConfig.KeyVaultName);
                     }
 
@@ -119,7 +123,8 @@ namespace SecureHostBuilderHelper
             config.builder = CreateHostBuilder<TApp>(args);
             config.myHost = config.builder.Build();
             config.myService = config.myHost.Services.GetRequiredService<TApp>();
-            TraceLoggerExtension._Logger = config.myHost.Services.GetRequiredService<ILogger<TApp>>(); ;
+            TraceLoggerExtension._Logger = config.myHost.Services.GetRequiredService<ILogger<TApp>>();
+            TraceLoggerExtension._environmentName = _appSetupConfig.RTE;
             return (config);
         }
 
