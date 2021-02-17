@@ -38,6 +38,7 @@ namespace SecureHostBuilderHelper
         private static IApplicationSetupConfiguration _appSetupConfig { get; set; }
         private static IApplicationSecrets _secrets { get; set; }
         private static IServiceProvider _serviceProvider { get; set; }
+        private static IRedisCache _cache { get; set; }
 
         /// <summary>
         /// This method will create an initialize a generic Host Builder 
@@ -76,7 +77,16 @@ namespace SecureHostBuilderHelper
                     // Build the final configuration
                     _baseConfiguration = builder.Build();
 
+                    // Get all the secrets from KeyVault
                     _secrets = _baseConfiguration.InitializeApplicationSecrets(_appSetupConfig);
+
+                    // Use the KeyVault secrets connect to redis cache
+                    _cache = _baseConfiguration.InitializeRedisCache(_secrets);
+
+                    // Set up automated refresh from redis cache. "TimedCacheRefresh" configuration
+                    // setting determines which keys are read from the cache and how often they are read.
+                    // These values are then placed as regular values that can be read from IConfiguration
+                    _cache?.RefreshConfigurationFromCache(_secrets, _baseConfiguration);
                 })
                 .ConfigureServices((hostingContext, services) =>
                 {
@@ -89,6 +99,10 @@ namespace SecureHostBuilderHelper
                         .AddSingleton<IApplicationSecrets>(sp =>
                         {
                             return (_secrets);
+                        })
+                        .AddSingleton<IRedisCache>(sp =>
+                        {
+                            return (_cache);
                         })
                         .AddSingleton<IHostEnvironment>(sp =>
                         {

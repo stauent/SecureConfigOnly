@@ -1,4 +1,4 @@
-#  .\SetKeyVaultSecret.ps1 'D:\BGRS\Code\AzureSupportSecureConfiguration\AzureSupportSecureConfiguration\AzueProductionSettings.json'  'KeyVault-ReloAccessDemo' 'ReloAccessSecrets'
+#  .\SetKeyVaultSecret.ps1 'D:\BGRS\Code\SecureConfigOnly\SecureConfigOnly\Secure-KV-PROD-SECRETS.json'  'Secure-KV-PROD' 'Secure-KV-PROD-SECRETS'
 
     Param
     (

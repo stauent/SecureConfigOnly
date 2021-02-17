@@ -1,4 +1,4 @@
-#  .\RetrieveSecretFromKeyVault.ps1 'KeyVault-ReloAccessDemo' 'ReloAccessSecrets'
+#  .\RetrieveSecretFromKeyVault.ps1 'Secure-KV-PROD' 'Secure-KV-PROD-SECRETS'
 
     Param
     (

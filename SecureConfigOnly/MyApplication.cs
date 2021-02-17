@@ -12,15 +12,19 @@ namespace SecureConfigOnly
 
         private readonly IApplicationSetupConfiguration _InitialConfiguration;
         private readonly IApplicationSecrets _ApplicationSecrets;
+        private readonly IConfiguration _Configuration;
 
         /// <summary>
         /// We use constructor dependency injection to the interfaces we need at runtime
         /// </summary>
-        /// <param name="requirements"></param>
-        public MyApplication(IApplicationSetupConfiguration InitialConfiguration, IApplicationSecrets ApplicationSecrets)
+        /// <param name="InitialConfiguration"></param>
+        /// <param name="ApplicationSecrets"></param>
+        /// <param name="Configuration"></param>
+        public MyApplication(IApplicationSetupConfiguration InitialConfiguration, IApplicationSecrets ApplicationSecrets, IConfiguration Configuration)
         {
             _InitialConfiguration = InitialConfiguration;
             _ApplicationSecrets = ApplicationSecrets;
+            _Configuration = Configuration;
         }
 
         /// <summary>
@@ -29,25 +33,39 @@ namespace SecureConfigOnly
         /// <returns></returns>
         internal async Task Run()
         {
-            $"Application Started at {DateTime.UtcNow}".TraceInformation();
+            $"Application Started at {DateTime.Now.ToLongTimeString()}".TraceInformation();
 
             _InitialConfiguration.TraceInformation("Dumping InitialConfiguration");
             _ApplicationSecrets.TraceInformation("Dumping ApplicationSecrets");
 
             // Demonstrate how to get at any connection string
             string FileLoggerConnectionString = _ApplicationSecrets.ConnectionString("FileLogger");
-            FileLoggerConnectionString.TraceInformation("FileLogger connection string value");
-
-            // Demonstrate how to get ENTIRE secret, including description and metadata
-            IApplicationSecretsConnectionStrings FileLoggerSecret = _ApplicationSecrets.Secret("FileLogger");
-            FileLoggerSecret.TraceInformation("FileLogger ENTIRE secret");
-            foreach (SecretMetaData metaData in FileLoggerSecret.MetaDataProperties)
+            if (!string.IsNullOrEmpty(FileLoggerConnectionString))
             {
-                metaData.TraceInformation("MetaData");
+                FileLoggerConnectionString.TraceInformation("FileLogger connection string value");
+
+                // Demonstrate how to get ENTIRE secret, including description and metadata
+                IApplicationSecretsConnectionStrings FileLoggerSecret = _ApplicationSecrets.Secret("FileLogger");
+                FileLoggerSecret.TraceInformation("FileLogger ENTIRE secret");
+                foreach (SecretMetaData metaData in FileLoggerSecret.MetaDataProperties)
+                {
+                    metaData.TraceInformation("MetaData");
+                }
+            }
+
+            // Display the JWT token that was read from Redis Cache
+            string JWT = _Configuration["ONIT_JWT"];
+            if (!string.IsNullOrEmpty(JWT))
+            {
+                JWT.TraceInformation("JWT token from cache");
+            }
+            else
+            {
+                "No JWT token was found".TraceInformation();
             }
 
 
-            $"Application Ended at {DateTime.UtcNow}".TraceInformation();
+            $"Application Ended at {DateTime.Now.ToLongTimeString()}".TraceInformation();
 
             Console.WriteLine("PRESS <ENTER> TO EXIT");
             Console.ReadKey();

@@ -37,8 +37,13 @@ namespace SecureConfiguration
                     var keyVaultEndpoint = GetKeyVaultEndpoint(KeyVaultName);
                     if (!string.IsNullOrEmpty(keyVaultEndpoint))
                     {
-                        var azureServiceTokenProvider = new AzureServiceTokenProvider();
-                        var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                        // Refer to these sites for more information:
+                        // https://blogs.aaddevsup.xyz/2020/01/exploring-azureservicetokenprovider-class-with-azure-key-vault/
+                        // https://docs.microsoft.com/en-us/dotnet/api/overview/azure/service-to-service-authentication
+                        //
+                        // The constructor will use the environment variable "AzureServicesAuthConnectionString" IF it exists.
+                        AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
+                        KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                         builder.AddAzureKeyVault(keyVaultEndpoint, keyVaultClient, new DefaultKeyVaultSecretManager());
                     }
                 }
@@ -47,6 +52,7 @@ namespace SecureConfiguration
             {
             }
         }
+
 
         /// <summary>
         /// The appsettings section "ApplicationSecrets" contains all connection string and sensitive information.
