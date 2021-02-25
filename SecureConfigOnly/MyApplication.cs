@@ -20,7 +20,9 @@ namespace SecureConfigOnly
         /// <param name="InitialConfiguration"></param>
         /// <param name="ApplicationSecrets"></param>
         /// <param name="Configuration"></param>
-        public MyApplication(IApplicationSetupConfiguration InitialConfiguration, IApplicationSecrets ApplicationSecrets, IConfiguration Configuration)
+        public MyApplication(IApplicationSetupConfiguration InitialConfiguration, 
+            IApplicationSecrets ApplicationSecrets, 
+            IConfiguration Configuration)
         {
             _InitialConfiguration = InitialConfiguration;
             _ApplicationSecrets = ApplicationSecrets;
