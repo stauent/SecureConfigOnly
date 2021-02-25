@@ -48,10 +48,17 @@ namespace SecureConfigOnly
 
                 // Demonstrate how to get ENTIRE secret, including description and metadata
                 IApplicationSecretsConnectionStrings FileLoggerSecret = _ApplicationSecrets.Secret("FileLogger");
-                FileLoggerSecret.TraceInformation("FileLogger ENTIRE secret");
-                foreach (SecretMetaData metaData in FileLoggerSecret.MetaDataProperties)
+                if (FileLoggerSecret != null)
                 {
-                    metaData.TraceInformation("MetaData");
+                    FileLoggerSecret.TraceInformation("FileLogger ENTIRE secret");
+
+                    if (FileLoggerSecret.MetaDataProperties != null)
+                    {
+                        foreach (SecretMetaData metaData in FileLoggerSecret.MetaDataProperties)
+                        {
+                            metaData.TraceInformation("MetaData");
+                        }
+                    }
                 }
             }
 
