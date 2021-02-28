@@ -16,6 +16,7 @@ namespace SecureHostBuilderHelper
         public static string ApplicationSecretsSectionName { get; set; } = "ApplicationSecrets";
         public static string InitialConfigurationSectionName { get; set; } = "InitialConfiguration";
 
+        public delegate void ConfigureLocalServices<T>(HostBuilderContext hostingContext, IServiceCollection services, IApplicationSetupConfiguration InitialConfiguration) where T : class;
 
         /// <summary>
         /// Maintains reference to base configuration interface 
@@ -45,8 +46,9 @@ namespace SecureHostBuilderHelper
         /// </summary>
         /// <typeparam name="TApp">Main application type. Used to access user secrets</typeparam>
         /// <param name="args">Application arguments</param>
+        /// <param name="localServiceConfiguration">Delegate to be executed to add any non-standard configuration needs</param>         
         /// <returns>Configured IHostBuilder</returns>
-        public static IHostBuilder CreateHostBuilder<TApp>(string[] args) where TApp : class
+        public static IHostBuilder CreateHostBuilder<TApp>(string[] args, ConfigureLocalServices<TApp> localServiceConfiguration = null) where TApp : class
         {
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, builder) =>
@@ -90,6 +92,8 @@ namespace SecureHostBuilderHelper
                 })
                 .ConfigureServices((hostingContext, services) =>
                 {
+                    localServiceConfiguration?.Invoke(hostingContext, services, _appSetupConfig);
+
                     services
                         .AddTransient<TApp>()
                         .AddSingleton<IApplicationSetupConfiguration>(sp =>
@@ -132,11 +136,12 @@ namespace SecureHostBuilderHelper
         /// </summary>
         /// <typeparam name="TApp">Type of your main application class</typeparam>
         /// <param name="args">Any command line parameters you used to launch the console app are passed here</param>
+        /// <param name="localServiceConfiguration">Delegate to be executed to add any non-standard configuration needs</param>        
         /// <returns>An ConfigurationResults object containing all the information about how this application is hosted</returns>
-        public static ConfigurationResults<TApp> CreateApp<TApp>(string[] args) where TApp : class
+        public static ConfigurationResults<TApp> CreateApp<TApp>(string[] args, ConfigureLocalServices<TApp> localServiceConfiguration = null) where TApp : class
         {
             ConfigurationResults<TApp> config = new ConfigurationResults<TApp>();
-            config.builder = CreateHostBuilder<TApp>(args);
+            config.builder = CreateHostBuilder<TApp>(args, localServiceConfiguration);
             config.myHost = config.builder.Build();
             config.myService = config.myHost.Services.GetRequiredService<TApp>();
             TraceLoggerExtension._Logger = config.myHost.Services.GetRequiredService<ILogger<TApp>>();
